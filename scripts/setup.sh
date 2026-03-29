@@ -83,7 +83,7 @@ if [ "$SKIP_WALLET" = false ]; then
         -s "$KEYCHAIN_SERVICE" \
         -a "$KEYCHAIN_ACCOUNT" \
         -w "$PRIVATE_KEY" \
-        -T "" \
+        -T /usr/bin/security \
         "$KEYCHAIN_PATH"
 
     # Save keychain password
