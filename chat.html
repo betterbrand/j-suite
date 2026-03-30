@@ -450,12 +450,49 @@
     color: var(--accent);
     animation: pulse 1.2s ease-in-out infinite;
   }
+
+  .sb-divider {
+    height: 1px;
+    background: var(--border);
+    margin: 8px 0 20px;
+  }
+
+  #sb-close-btn {
+    width: 100%;
+    padding: 9px 14px;
+    background: transparent;
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    color: var(--text-dim);
+    font-family: inherit;
+    font-size: 12px;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+
+  #sb-close-btn:hover { border-color: #c44; color: #c44; }
+
+  /* Setup screen logo mark */
+  #setup-mark {
+    width: 56px;
+    height: 56px;
+    background: linear-gradient(135deg, #23dc8e, #0f8856);
+    border-radius: 16px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 16px;
+  }
+  #setup-mark svg { width: 34px; height: 34px; }
 </style>
 </head>
 <body>
 
 <div id="setup">
   <div id="setup-inner">
+    <div id="setup-mark">
+      <svg viewBox="0 0 550 248" fill="#fff"><path d="M227 173v75l-5.7-2.2q-25.9-11.1-51.7-22.2c-6-2.6-12-5.5-18-8l-26.2-10.9-25.3-10.9-11.5-5a3.2 3.2 0 0 1-1.5-1.4q-8.8-18.8-17.5-37.7l-5.4-11.5 6.2 2.6 10.2 4.3 9.1 4 22.9 9.8 17.9 7.9 10.8 4.4 15.4 7 14.5 6.2 15.3 7c1.5.7 1.8.3 1.8-1.1 0-4 .1-8-.1-12a3.2 3.2 0 0 0-1.5-2.3l-20.8-9.2-13.9-6.2-12.1-5-15.4-7-14.5-6.1-14.2-6.3-19-8.4-17.9-7.4a16 16 0 0 1-5.8-6.2l-10.1-22.1L32.3 69.7a13 13 0 0 1-.4-1.6L188.1 136.6l.1-2.2V124c0-3.4-1.2-5-4.3-6.3l-16.4-7.1-11.6-4.7-11-4.8-17.3-7.6L97.4 80.6 58.7 64.2 30.3 52.2a29 29 0 0 0-3.9-1.6 8.6 8.6 0 0 1-5.3-5L7.3 15.6 0 0l8.8 3.6L36.6 15.3 79.2 33.1l41.3 17.1 30.5 13.1 27.8 12 10.7 4.7 17.1 7.7c5.4 2.5 9.8 6.4 14.2 10.3 8.4 7.2 14.3 16.5 21.1 25l14.2 18.4 16.1 20.4c2.1 2.6 4.4 2.5 6.5-.2l14.1-17.4 9.6-12.9c5.5-7.2 11.2-14.2 16.6-21.4a81.6 81.6 0 0 1 22.4-20.6l11.2-5.3 5.5-2.5 11.8-5.1 21-9.1 30.6-13.4 33.4-13.5 49.4-20.9L536-15.1l10.5-4.3-5.8 12.7-16 34.3a6.1 6.1 0 0 1-2.8 2.8L473.2 51l-44.4 18.8-18.5 8.3-18 7.5-22.6 9.8-7.2 2.9a7.2 7.2 0 0 0-4.2 6.2c.1 4.1 0 8.2 0 12.7L518.7 68.2l.3.5-4 8.8-17.7 38.2a9.6 9.6 0 0 1-5.4 5l-11.6 4.9-12 4.9-11.3 5.2-9.6 4.1-10.6 4.6-10.1 4.2-12.4 5.6-9.7 4.1-14.8 6.7-19.1 8.2-6.6 3.1a3.1 3.1 0 0 0-1.3 2.2c-.1 4-.1 8-.1 12 0 1.5.4 1.7 1.8 1l15.5-7.1 10.4-4.7 11.1-4.7 12.7-5.4 19.9-8.8 13.3-5.5 11.7-5.2 9-3.9 9.3-3.8 9.3-4.1-3.8 8.5-18.8 40.4a7.4 7.4 0 0 1-4.6 3.1l-12.3 5.2-20 8.5-16 7-11.7 4.7-12.9 5.7-15.7 6.8-29.6 12.7-1.8.6V173.7l-48.3 46.9c-15.4-16.4-30.6-32.8-48.4-47.4"/></svg>
+    </div>
     <div id="setup-logo">Morpheus</div>
     <div id="setup-sub">Decentralized AI Inference</div>
     <p id="setup-status">Connecting...</p>
@@ -496,26 +533,72 @@
       <div class="sb-section">
         <div class="sb-label">Session</div>
         <div id="sb-session" class="sb-value-mono">--</div>
-      </div>
-
-      <div class="sb-section">
-        <div class="sb-label">Duration</div>
-        <div id="sb-duration" class="sb-value">--</div>
+        <div id="sb-time-remaining" class="sb-value" style="margin-top: 4px; color: var(--accent);"></div>
       </div>
 
       <div class="sb-section">
         <div class="sb-label">Provider</div>
         <div id="sb-provider" class="sb-value-mono">--</div>
+        <div id="sb-provider-endpoint" class="sb-value-mono" style="margin-top: 4px;"></div>
       </div>
 
       <div class="sb-section">
-        <div class="sb-label">Fee</div>
+        <div class="sb-label">Fee / Stake</div>
         <div id="sb-fee" class="sb-value">--</div>
       </div>
 
+      <div class="sb-divider"></div>
+
       <div class="sb-section">
-        <div class="sb-label">Stake</div>
-        <div id="sb-stake" class="sb-value">--</div>
+        <div class="sb-label">Wallet</div>
+        <div id="sb-wallet" class="sb-value-mono">--</div>
+      </div>
+
+      <div class="sb-section">
+        <div class="sb-label">Balances</div>
+        <div id="sb-bal-mor" class="sb-value">--</div>
+        <div id="sb-bal-eth" class="sb-value" style="margin-top: 2px;">--</div>
+      </div>
+
+      <div class="sb-section">
+        <div class="sb-label">MOR Allowance</div>
+        <div id="sb-allowance" class="sb-value">--</div>
+      </div>
+
+      <div class="sb-divider"></div>
+
+      <div class="sb-section">
+        <div class="sb-label">Network</div>
+        <div class="sb-value">BASE Mainnet (8453)</div>
+      </div>
+
+      <div class="sb-section">
+        <div class="sb-label">Block</div>
+        <div id="sb-block" class="sb-value-mono">--</div>
+      </div>
+
+      <div class="sb-section">
+        <div class="sb-label">MOR Supply</div>
+        <div id="sb-supply" class="sb-value">--</div>
+      </div>
+
+      <div class="sb-section">
+        <div class="sb-label">Compute Budget</div>
+        <div id="sb-budget" class="sb-value">--</div>
+      </div>
+
+      <div class="sb-section">
+        <div class="sb-label">Diamond Contract</div>
+        <div class="sb-value-mono" style="font-size: 10px;">0x6aBE1d...d3030a</div>
+      </div>
+
+      <div class="sb-section">
+        <div class="sb-label">Models Available</div>
+        <div id="sb-model-count" class="sb-value">--</div>
+      </div>
+
+      <div id="sb-close-section" class="sb-section hidden">
+        <button id="sb-close-btn" onclick="closeSession()">Close Session (Refund MOR)</button>
       </div>
     </div>
     <div id="sidebar-footer">
@@ -690,21 +773,33 @@ function formatWei(wei) {
   return eth.toFixed(4) + ' MOR';
 }
 
+function formatMOR(wei) {
+  if (!wei && wei !== 0) return '--';
+  const v = Number(wei) / 1e18;
+  if (v === 0) return '0 MOR';
+  if (v < 0.0001) return '< 0.0001 MOR';
+  if (v >= 1000) return v.toFixed(0).replace(/\B(?=(\d{3})+(?!\d))/g, ',') + ' MOR';
+  return v.toFixed(4) + ' MOR';
+}
+
+function formatETH(wei) {
+  if (!wei && wei !== 0) return '--';
+  const v = Number(wei) / 1e18;
+  if (v === 0) return '0 ETH';
+  return v.toFixed(6) + ' ETH';
+}
+
 function populateSidebar(model, sid) {
   const tags = model.Tags || [];
   const isTee = tags.join(',').toLowerCase().includes('tee');
 
   document.getElementById('sb-model').textContent = model.Name || '--';
   document.getElementById('sb-session').textContent = sid || '--';
-  document.getElementById('sb-duration').textContent = '10 minutes';
   document.getElementById('sb-provider').textContent = model.Owner || '--';
-  document.getElementById('sb-fee').textContent = formatWei(model.Fee);
-  document.getElementById('sb-stake').textContent = formatWei(model.Stake);
+  document.getElementById('sb-fee').textContent = formatMOR(model.Fee) + ' fee / ' + formatMOR(model.Stake) + ' stake';
 
-  // TEE badge
-  const teeBadge = document.getElementById('sb-tee-badge');
   if (isTee) {
-    teeBadge.classList.remove('hidden');
+    document.getElementById('sb-tee-badge').classList.remove('hidden');
   }
 
   // Model tags
@@ -715,10 +810,95 @@ function populateSidebar(model, sid) {
     const badge = document.createElement('span');
     badge.className = 'badge badge-model';
     badge.textContent = t;
-    badge.style.fontSize = '10px';
-    badge.style.padding = '2px 8px';
     tagsEl.appendChild(badge);
   });
+
+  // Show close button
+  document.getElementById('sb-close-section').classList.remove('hidden');
+
+  // Fetch network data
+  fetchNetworkInfo();
+  // Start countdown timer
+  startSessionTimer();
+}
+
+let sessionEndTime = 0;
+let timerInterval = null;
+
+function startSessionTimer() {
+  sessionEndTime = Math.floor(Date.now() / 1000) + 600; // 10 min from now
+  if (timerInterval) clearInterval(timerInterval);
+  timerInterval = setInterval(() => {
+    const remaining = sessionEndTime - Math.floor(Date.now() / 1000);
+    const el = document.getElementById('sb-time-remaining');
+    if (remaining <= 0) {
+      el.textContent = 'Session expired';
+      el.style.color = '#c44';
+      clearInterval(timerInterval);
+    } else {
+      const m = Math.floor(remaining / 60);
+      const s = remaining % 60;
+      el.textContent = m + ':' + String(s).padStart(2, '0') + ' remaining';
+    }
+  }, 1000);
+}
+
+async function fetchNetworkInfo() {
+  try {
+    const [wallet, balance, allowance, block, supply, budget] = await Promise.all([
+      apiFetch('/wallet'),
+      apiFetch('/blockchain/balance'),
+      apiFetch('/blockchain/allowance'),
+      apiFetch('/blockchain/latestBlock'),
+      apiFetch('/blockchain/token/supply'),
+      apiFetch('/blockchain/sessions/budget'),
+    ]);
+
+    const addr = wallet.address || '--';
+    document.getElementById('sb-wallet').textContent = addr.slice(0, 6) + '...' + addr.slice(-4);
+    document.getElementById('sb-wallet').title = addr;
+    document.getElementById('sb-bal-mor').textContent = formatMOR(balance.mor);
+    document.getElementById('sb-bal-eth').textContent = formatETH(balance.eth);
+    document.getElementById('sb-allowance').textContent = formatMOR(allowance.allowance);
+    document.getElementById('sb-block').textContent = '#' + Number(block.block).toLocaleString();
+    document.getElementById('sb-supply').textContent = formatMOR(supply.supply);
+    document.getElementById('sb-budget').textContent = formatMOR(budget.budget);
+    document.getElementById('sb-model-count').textContent = Object.keys(window._models || {}).length + ' LLMs';
+
+    // Find provider endpoint
+    try {
+      const providers = await apiFetch('/blockchain/providers');
+      const provList = providers.providers || providers || [];
+      const owner = selectedModel?.Owner;
+      const prov = provList.find(p => (p.Address || '').toLowerCase() === (owner || '').toLowerCase());
+      if (prov && prov.Endpoint) {
+        document.getElementById('sb-provider-endpoint').textContent = prov.Endpoint;
+      }
+    } catch {}
+  } catch (e) {
+    // silently fail — sidebar shows defaults
+  }
+}
+
+async function closeSession() {
+  if (!sessionId) return;
+  const btn = document.getElementById('sb-close-btn');
+  btn.disabled = true;
+  btn.textContent = 'Closing...';
+  try {
+    await apiFetch('/blockchain/sessions/' + sessionId + '/close', { method: 'POST' });
+    addMsg('system', 'Session closed. Unused MOR deposit will be refunded to your wallet.');
+    btn.textContent = 'Session Closed';
+    if (timerInterval) clearInterval(timerInterval);
+    document.getElementById('sb-time-remaining').textContent = 'Closed';
+    document.getElementById('sb-time-remaining').style.color = 'var(--text-dim)';
+    // Refresh balances after a moment
+    setTimeout(fetchNetworkInfo, 5000);
+  } catch (e) {
+    btn.textContent = 'Close Session (Refund MOR)';
+    btn.disabled = false;
+    addMsg('system', 'Failed to close session: ' + e.message);
+  }
 }
 
 async function openSession() {
