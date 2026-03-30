@@ -119,7 +119,7 @@ DIAMOND="0x6aBE1d282f72B474E54527D93b979A4f64d3030a"
 echo "Approving MOR token spending..."
 APPROVE_RESP=$(curl -s -u "$AUTH_USER:$AUTH_PASS" \
     -X POST \
-    "$API_URL/blockchain/approve?spender=$DIAMOND&amount=100" 2>/dev/null || echo "")
+    "$API_URL/blockchain/approve?spender=$DIAMOND&amount=100000000000000000000" 2>/dev/null || echo "")
 
 if [ -n "$APPROVE_RESP" ]; then
     echo "[OK] MOR spending approved"

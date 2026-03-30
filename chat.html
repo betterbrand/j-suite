@@ -914,7 +914,7 @@ async function openSession() {
 
   try {
     const diamond = '0x6aBE1d282f72B474E54527D93b979A4f64d3030a';
-    await apiFetch('/blockchain/approve?spender=' + diamond + '&amount=100', { method: 'POST' });
+    await apiFetch('/blockchain/approve?spender=' + diamond + '&amount=100000000000000000000', { method: 'POST' });
 
     btn.textContent = 'Opening session...';
     const resp = await apiFetch('/blockchain/models/' + modelId + '/session', {
