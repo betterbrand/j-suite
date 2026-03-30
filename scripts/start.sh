@@ -43,10 +43,25 @@ if [ -z "$WALLET_KEY" ]; then
 fi
 echo "[OK] Wallet key loaded from Keychain"
 
-# --- Start container with key injected at runtime ---
+# --- Inject key into .env, start, restore sentinel ---
 echo "Starting proxy-router..."
 cd "$PROJECT_DIR"
-WALLET_PRIVATE_KEY="$WALLET_KEY" docker compose up -d
+
+# Temporarily write key into .env for Docker
+if [[ "$OSTYPE" == "darwin"* ]]; then
+    sed -i '' "s|^WALLET_PRIVATE_KEY=.*|WALLET_PRIVATE_KEY=$WALLET_KEY|" "$PROJECT_DIR/.env"
+else
+    sed -i "s|^WALLET_PRIVATE_KEY=.*|WALLET_PRIVATE_KEY=$WALLET_KEY|" "$PROJECT_DIR/.env"
+fi
+
+docker compose up -d
+
+# Restore sentinel so key isn't sitting in plaintext
+if [[ "$OSTYPE" == "darwin"* ]]; then
+    sed -i '' "s|^WALLET_PRIVATE_KEY=.*|WALLET_PRIVATE_KEY=KEYCHAIN|" "$PROJECT_DIR/.env"
+else
+    sed -i "s|^WALLET_PRIVATE_KEY=.*|WALLET_PRIVATE_KEY=KEYCHAIN|" "$PROJECT_DIR/.env"
+fi
 
 # Clear key from shell
 unset WALLET_KEY
