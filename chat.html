@@ -1191,7 +1191,7 @@ function showRpcBanner() {
   if (document.getElementById('rpc-banner')) return;
   const banner = document.createElement('div');
   banner.id = 'rpc-banner';
-  banner.innerHTML = '<span>RPC endpoint appears down. Update ETH_NODE_ADDRESS in .env and run ~/jeff-suite/scripts/start.sh</span><button onclick="dismissRpcBanner()">&times;</button>';
+  banner.innerHTML = '<span>RPC endpoint appears down. Update ETH_NODE_ADDRESS in .env and run ~/j-suite/scripts/start.sh</span><button onclick="dismissRpcBanner()">&times;</button>';
   const messages = document.getElementById('messages');
   messages.parentNode.insertBefore(banner, messages);
 }

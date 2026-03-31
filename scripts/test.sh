@@ -11,7 +11,7 @@ pass() { echo "[PASS] $1"; PASS=$((PASS + 1)); }
 fail() { echo "[FAIL] $1"; FAIL=$((FAIL + 1)); }
 skip() { echo "[SKIP] $1"; SKIP=$((SKIP + 1)); }
 
-echo "=== Jeff Suite Tests ==="
+echo "=== The J Suite Tests ==="
 echo ""
 
 # -------------------------------------------------------

@@ -6,7 +6,7 @@ PROJECT_DIR="$(dirname "$SCRIPT_DIR")"
 KEYCHAIN_PATH="$HOME/.morpheus-wallet.keychain-db"
 KEYCHAIN_PASS_FILE="$HOME/.morpheus-keychain-pass"
 KEYCHAIN_SERVICE="morpheus-consumer-wallet"
-KEYCHAIN_ACCOUNT="jeff-suite"
+KEYCHAIN_ACCOUNT="j-suite"
 
 echo "=== Starting Morpheus Proxy-Router ==="
 echo ""

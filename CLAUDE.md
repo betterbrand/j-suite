@@ -1,4 +1,4 @@
-# Jeff Suite
+# The J Suite
 
 Dead-simple consumer onboarding for the Morpheus Lumerin Node. One curl command installs everything, generates a wallet, starts the node, waits for funding, and opens a browser-based chat UI connected to decentralized AI models with TEE verification.
 

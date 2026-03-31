@@ -6,7 +6,7 @@ PROJECT_DIR="$(dirname "$SCRIPT_DIR")"
 KEYCHAIN_PATH="$HOME/.morpheus-wallet.keychain-db"
 KEYCHAIN_PASS_FILE="$HOME/.morpheus-keychain-pass"
 KEYCHAIN_SERVICE="morpheus-consumer-wallet"
-KEYCHAIN_ACCOUNT="jeff-suite"
+KEYCHAIN_ACCOUNT="j-suite"
 WALLET_ADDR_FILE="$PROJECT_DIR/data/.wallet-address"
 
 # Source RPC fallback
@@ -21,7 +21,7 @@ while [[ $# -gt 0 ]]; do
   esac
 done
 
-echo "=== Jeff Suite Setup ==="
+echo "=== The J Suite Setup ==="
 echo ""
 
 # --- Check prerequisites ---

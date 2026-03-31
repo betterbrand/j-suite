@@ -1,4 +1,4 @@
-# Jeff Suite
+# The J Suite
 
 Run the Morpheus Lumerin Node as a consumer and chat with decentralized AI models offering TEE (Trusted Execution Environment) verification. Target model: glm-5 (or whatever TEE provider is available on the marketplace).
 
@@ -7,10 +7,10 @@ Run the Morpheus Lumerin Node as a consumer and chat with decentralized AI model
 Open Terminal and paste:
 
 ```bash
-curl -fsSL https://raw.githubusercontent.com/betterbrand/jeff-suite/main/install.sh | bash
+curl -fsSL https://raw.githubusercontent.com/betterbrand/j-suite/main/install.sh | bash
 ```
 
-This downloads Jeff Suite to `~/jeff-suite`, checks prerequisites, generates a wallet, and walks you through setup.
+This downloads The J Suite to `~/j-suite`, checks prerequisites, generates a wallet, and walks you through setup.
 
 ### Prerequisites
 
@@ -20,7 +20,7 @@ The installer checks for these automatically:
 
 ### What the installer does
 
-1. Downloads Jeff Suite to `~/jeff-suite`
+1. Downloads The J Suite to `~/j-suite`
 2. Checks that Docker is installed
 3. Generates a fresh Ethereum wallet (stored in macOS Keychain, not on disk)
 4. Asks for a BASE RPC URL (press Enter for the default)
@@ -37,7 +37,7 @@ After setup prints your wallet address, send tokens to it on the BASE network:
 Then check your balance:
 
 ```bash
-~/jeff-suite/scripts/balance.sh
+~/j-suite/scripts/balance.sh
 ```
 
 Run it again until your funds show up (BASE confirms in a few seconds).
@@ -46,24 +46,24 @@ Run it again until your funds show up (BASE confirms in a few seconds).
 
 ```bash
 # Start the proxy-router
-~/jeff-suite/scripts/start.sh
+~/j-suite/scripts/start.sh
 
 # Verify it's running
-~/jeff-suite/scripts/health.sh
+~/j-suite/scripts/health.sh
 
 # Browse available models
-~/jeff-suite/scripts/list-models.sh
+~/j-suite/scripts/list-models.sh
 
 # Open a session (auto-selects TEE provider, prefers glm-5)
-~/jeff-suite/scripts/open-session.sh
+~/j-suite/scripts/open-session.sh
 
 # Chat
-~/jeff-suite/scripts/chat.sh "Hello, what model are you?"
-~/jeff-suite/scripts/chat.sh "Explain TEE attestation in one paragraph."
-~/jeff-suite/scripts/chat.sh "What are the benefits of decentralized AI inference?"
+~/j-suite/scripts/chat.sh "Hello, what model are you?"
+~/j-suite/scripts/chat.sh "Explain TEE attestation in one paragraph."
+~/j-suite/scripts/chat.sh "What are the benefits of decentralized AI inference?"
 
 # Shut down when done
-~/jeff-suite/scripts/teardown.sh
+~/j-suite/scripts/teardown.sh
 ```
 
 ## Using MorpheusUI (GUI Alternative)
@@ -110,7 +110,7 @@ Your private key is stored in macOS Keychain, not in any plaintext file:
 
 **"Session failed"** -- Check MOR balance with `./scripts/balance.sh`. Need at least 5 MOR.
 
-**"Connection refused on 8082"** -- Container not running. Check `docker compose logs` in the jeff-suite directory.
+**"Connection refused on 8082"** -- Container not running. Check `docker compose logs` in the j-suite directory.
 
 **"401 Unauthorized"** -- Auth mismatch. Check `COOKIE_CONTENT` in `.env` matches what the container expects.
 

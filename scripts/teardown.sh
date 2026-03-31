@@ -5,7 +5,7 @@ SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 PROJECT_DIR="$(dirname "$SCRIPT_DIR")"
 SESSION_FILE="$PROJECT_DIR/data/.last-session"
 
-echo "=== Jeff Suite Teardown ==="
+echo "=== The J Suite Teardown ==="
 echo ""
 
 # --- Close active session ---

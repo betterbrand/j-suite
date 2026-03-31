@@ -1,17 +1,17 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-# Jeff Suite Installer
+# The J Suite Installer
 # Usage: curl -fsSL <raw-url>/install.sh | bash
 #
-# Downloads Jeff Suite to ~/jeff-suite and runs setup.
+# Downloads The J Suite to ~/j-suite and runs setup.
 
-INSTALL_DIR="$HOME/jeff-suite"
-REPO_URL="https://github.com/betterbrand/jeff-suite"
+INSTALL_DIR="$HOME/j-suite"
+REPO_URL="https://github.com/betterbrand/j-suite"
 BRANCH="main"
 
 echo ""
-echo "  Jeff Suite Installer"
+echo "  The J Suite Installer"
 echo "  Morpheus Consumer Node + MorpheusUI"
 echo ""
 
@@ -37,21 +37,21 @@ fi
 
 # --- Download ---
 if [ -d "$INSTALL_DIR" ]; then
-    echo "Jeff Suite already installed at $INSTALL_DIR"
+    echo "The J Suite already installed at $INSTALL_DIR"
     echo "To reinstall, remove it first: rm -rf $INSTALL_DIR"
     echo ""
     echo "Running setup..."
     exec "$INSTALL_DIR/scripts/setup.sh" "$@"
 fi
 
-echo "Downloading Jeff Suite..."
+echo "Downloading The J Suite..."
 
-TMP_ZIP=$(mktemp /tmp/jeff-suite-XXXXXX.zip)
-TMP_DIR=$(mktemp -d /tmp/jeff-suite-extract-XXXXXX)
+TMP_ZIP=$(mktemp /tmp/j-suite-XXXXXX.zip)
+TMP_DIR=$(mktemp -d /tmp/j-suite-extract-XXXXXX)
 
 curl -fsSL "$REPO_URL/archive/refs/heads/$BRANCH.zip" -o "$TMP_ZIP"
 unzip -q "$TMP_ZIP" -d "$TMP_DIR"
-mv "$TMP_DIR/jeff-suite-$BRANCH" "$INSTALL_DIR"
+mv "$TMP_DIR/j-suite-$BRANCH" "$INSTALL_DIR"
 rm -rf "$TMP_ZIP" "$TMP_DIR"
 
 chmod +x "$INSTALL_DIR"/scripts/*.sh
