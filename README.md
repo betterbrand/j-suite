@@ -34,7 +34,7 @@ After install, you'll see your wallet address. Send MOR + ETH to it (see "Fund Y
 
 After setup prints your wallet address, send tokens to it on the BASE network:
 - At least **5 MOR** (for session deposits)
-- About **0.001 ETH** (for gas)
+- About **0.00005 ETH** (for gas -- BASE is very cheap)
 
 Then check your balance:
 

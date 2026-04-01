@@ -56,7 +56,7 @@ if [ "$ETH_OK" = "yes" ] && [ "$MOR_OK" = "yes" ]; then
     echo "  Next: ./scripts/start.sh"
 else
     echo "  [WAITING] Wallet needs funding:"
-    [ "$ETH_OK" = "no" ] && echo "    - Send ETH (BASE) for gas (~0.001 ETH minimum)"
+    [ "$ETH_OK" = "no" ] && echo "    - Send ETH (BASE) for gas (~0.00005 ETH minimum)"
     [ "$MOR_OK" = "no" ] && echo "    - Send at least 5 MOR (BASE) for session deposits"
     echo ""
     echo "  Run this script again to recheck."

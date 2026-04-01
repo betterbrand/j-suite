@@ -64,7 +64,7 @@ Things that were discovered through testing and iteration:
 - **`/dev/tty` is not available when piped from curl.** No interactive prompts in setup — poll automatically.
 - **The public BASE RPC (`mainnet.base.org`) rate-limits aggressively.** The proxy-router makes many blockchain calls. An Alchemy free-tier key is required for reliability.
 - **macOS Keychain ACL: `-T ""` blocks all access, prompting a GUI dialog.** Use `-T /usr/bin/security` to allow CLI reads without prompts.
-- **Session fees are 1 wei/second on most models.** Essentially free. The real cost is gas (~0.002-0.003 ETH per session open/close).
+- **Session fees are 1 wei/second on most models.** Essentially free. The real cost is gas (~0.000003 ETH per session open/close at 0.006 gwei on BASE).
 - **`set -euo pipefail` with `((PASS++))` exits when PASS is 0** because `((0++))` returns exit code 1. Use `PASS=$((PASS + 1))` instead.
 - **Python `hashlib.sha3_256` is NIST SHA-3, not keccak-256.** Ethereum uses keccak-256 which has different padding. Had to implement keccak-256 from scratch in `eth_address.py`.
 - **MorpheusUI (Electron app) crashes when Docker proxy-router is already on port 8082.** They can't coexist. Use `chat.html` instead.

@@ -131,7 +131,7 @@ if [ "$SKIP_WALLET" = false ]; then
 
             FAUCET_OK=$(echo "$FAUCET_RESP" | python3 -c "import sys,json; print('yes' if json.load(sys.stdin).get('success') else 'no')" 2>/dev/null || echo "no")
             if [ "$FAUCET_OK" = "yes" ]; then
-                echo "[OK] Funds sent! 3 MOR + 0.003 ETH incoming (~2 seconds on BASE)"
+                echo "[OK] Funds sent! 3 MOR + gas incoming (~2 seconds on BASE)"
                 SKIP_FUNDING_WAIT=true
             else
                 FAUCET_ERR=$(echo "$FAUCET_RESP" | python3 -c "import sys,json; print(json.load(sys.stdin).get('error','unknown'))" 2>/dev/null || echo "unknown")
@@ -218,7 +218,7 @@ if [ -f "$WALLET_ADDR_FILE" ]; then
         echo "  Funds arriving via invite code. Waiting for confirmation..."
         sleep 5
     else
-        echo "  Send 3 MOR and 0.003 ETH to that address on BASE."
+        echo "  Send 3 MOR and a tiny bit of ETH to that address on BASE."
         echo ""
         echo "  Waiting for funds to arrive..."
     fi
