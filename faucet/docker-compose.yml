@@ -1,3 +1,7 @@
+# Start with ./start-faucet.sh which reads the wallet key from
+# macOS Keychain and passes it as FAUCET_PRIVATE_KEY env var.
+# The key is never written to disk.
+
 services:
   faucet:
     build: .
@@ -5,6 +9,8 @@ services:
       - "3456:3456"
     env_file:
       - .env
+    environment:
+      - FAUCET_PRIVATE_KEY=${FAUCET_PRIVATE_KEY}
     volumes:
       - ./codes.json:/app/codes.json
     restart: unless-stopped
