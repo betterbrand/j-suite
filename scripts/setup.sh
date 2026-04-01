@@ -121,7 +121,7 @@ if [ "$SKIP_WALLET" = false ]; then
     # --- Request funding via invite code ---
     SKIP_FUNDING_WAIT=false
     if [ -n "$INVITE_CODE" ]; then
-        FAUCET_URL="${FAUCET_URL:-}"
+        FAUCET_URL="${FAUCET_URL:-https://faucet-production-d8c8.up.railway.app}"
         if [ -n "$FAUCET_URL" ]; then
             echo "Requesting funds via invite code..."
             FAUCET_RESP=$(curl -sf --max-time 15 -X POST "$FAUCET_URL/fund" \
