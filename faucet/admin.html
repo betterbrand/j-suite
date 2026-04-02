@@ -311,6 +311,54 @@
 
   .generate-input:focus { border-color: var(--accent); }
 
+  /* Analytics */
+  .a-row {
+    padding: 12px 16px;
+    border-bottom: 1px solid var(--border);
+    cursor: pointer;
+    transition: background 0.1s;
+  }
+  .a-row:hover { background: var(--bg); }
+  .a-row:last-child { border-bottom: none; }
+  .a-row-top {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+  }
+  .a-name { font-size: 14px; font-weight: 500; }
+  .a-wallet { font-family: 'SF Mono', monospace; font-size: 11px; color: var(--text-dim); }
+  .a-metrics {
+    display: flex;
+    gap: 12px;
+    font-size: 11px;
+    color: var(--text-dim);
+    margin-top: 4px;
+  }
+  .a-metrics strong { color: var(--text); font-weight: 500; }
+  .a-status {
+    font-size: 11px;
+    font-weight: 600;
+    padding: 2px 8px;
+    border-radius: 10px;
+    white-space: nowrap;
+  }
+  .a-status.active { background: var(--accent-light); color: var(--accent); }
+  .a-status.purchased { background: #e8f0fe; color: #1a5fb4; }
+  .a-status.faucet-only { background: #f0eeea; color: var(--text-dim); }
+  .a-status.inactive { background: #fde8e8; color: var(--red); }
+  .a-status.error { background: #fde8e8; color: var(--red); }
+  .a-history {
+    display: none;
+    padding: 10px 0 4px;
+    font-size: 11px;
+    color: var(--text-dim);
+  }
+  .a-history.open { display: block; }
+  .a-history table { width: 100%; border-collapse: collapse; }
+  .a-history th, .a-history td { padding: 3px 8px; text-align: left; }
+  .a-history th { color: var(--text-light); font-weight: 500; }
+
   /* Empty state */
   .empty {
     padding: 24px 16px;
@@ -466,6 +514,39 @@
       </div>
       <div class="section-body" id="used-list">
         <div class="loading">Loading...</div>
+      </div>
+    </div>
+
+    <!-- Analytics -->
+    <div class="section">
+      <div class="section-header">
+        <span class="section-title">Analytics</span>
+        <button class="btn btn-outline btn-small" onclick="loadAnalytics()" id="analytics-refresh-btn">Load</button>
+      </div>
+
+      <div id="analytics-summary" class="hidden" style="padding: 16px;">
+        <div class="stats" style="margin-bottom: 16px;">
+          <div class="stat">
+            <div id="a-invited" class="stat-value">--</div>
+            <div class="stat-label">Invited</div>
+          </div>
+          <div class="stat">
+            <div id="a-converted" class="stat-value green">--</div>
+            <div class="stat-label">Converted</div>
+          </div>
+          <div class="stat">
+            <div id="a-rate" class="stat-value">--</div>
+            <div class="stat-label">Rate</div>
+          </div>
+        </div>
+        <div style="display:flex; gap:16px; font-size:12px; color:var(--text-dim); margin-bottom:12px;">
+          <span>MOR Purchased: <strong id="a-mor-purchased">--</strong></span>
+          <span>MOR Spent: <strong id="a-mor-spent">--</strong></span>
+        </div>
+      </div>
+
+      <div class="section-body" id="analytics-list">
+        <div class="empty">Click "Load" to fetch analytics.</div>
       </div>
     </div>
 
@@ -849,6 +930,130 @@ async function generateCodes() {
 
   btn.disabled = false;
   btn.textContent = 'Generate';
+}
+
+// --- Analytics ---
+
+async function loadAnalytics() {
+  const btn = document.getElementById('analytics-refresh-btn');
+  const list = document.getElementById('analytics-list');
+  btn.disabled = true;
+  btn.textContent = 'Loading...';
+  list.innerHTML = '<div class="empty">Querying on-chain data...</div>';
+
+  try {
+    const data = await adminFetch('/admin/analytics');
+    const users = data.users || [];
+    const summary = data.summary || {};
+
+    // Summary cards
+    document.getElementById('analytics-summary').classList.remove('hidden');
+    document.getElementById('a-invited').textContent = summary.totalInvited || 0;
+    document.getElementById('a-converted').textContent = summary.totalConverted || 0;
+    document.getElementById('a-rate').textContent = summary.conversionRate || '0%';
+    document.getElementById('a-mor-purchased').textContent = parseFloat(summary.totalMorPurchased || 0).toFixed(2) + ' MOR';
+    document.getElementById('a-mor-spent').textContent = parseFloat(summary.totalMorSpent || 0).toFixed(2) + ' MOR';
+
+    // User list
+    list.innerHTML = '';
+    if (users.length === 0) {
+      list.innerHTML = '<div class="empty">No redeemed codes yet.</div>';
+    } else {
+      users.forEach(u => {
+        const row = document.createElement('div');
+        row.className = 'a-row';
+
+        const top = document.createElement('div');
+        top.className = 'a-row-top';
+
+        const left = document.createElement('div');
+
+        const nameEl = document.createElement('span');
+        nameEl.className = 'a-name';
+        nameEl.textContent = u.name || u.code;
+        left.appendChild(nameEl);
+
+        const walletEl = document.createElement('div');
+        walletEl.className = 'a-wallet';
+        walletEl.textContent = u.wallet ? u.wallet.slice(0, 6) + '...' + u.wallet.slice(-4) : '--';
+        left.appendChild(walletEl);
+
+        const metrics = document.createElement('div');
+        metrics.className = 'a-metrics';
+        metrics.innerHTML =
+          '<span>MOR: <strong>' + esc(u.currentMor) + '</strong></span>' +
+          '<span>Bought: <strong>' + esc(u.morPurchased) + '</strong></span>' +
+          '<span>Sessions: <strong>' + u.sessionsOpened + '</strong></span>' +
+          '<span>Day ' + u.daysSinceInvite + '</span>';
+        left.appendChild(metrics);
+
+        top.appendChild(left);
+
+        const statusEl = document.createElement('span');
+        const statusClass = (u.status || 'unknown').replace(/\s+/g, '-');
+        statusEl.className = 'a-status ' + statusClass;
+        statusEl.textContent = u.status || 'unknown';
+        top.appendChild(statusEl);
+
+        row.appendChild(top);
+
+        // Expandable history
+        const histDiv = document.createElement('div');
+        histDiv.className = 'a-history';
+        histDiv.textContent = 'Loading history...';
+        row.appendChild(histDiv);
+
+        row.addEventListener('click', async () => {
+          if (histDiv.classList.contains('open')) {
+            histDiv.classList.remove('open');
+            return;
+          }
+          histDiv.classList.add('open');
+          try {
+            const hData = await adminFetch('/admin/analytics/' + encodeURIComponent(u.wallet) + '/history');
+            const history = hData.history || [];
+            if (history.length === 0) {
+              histDiv.textContent = 'No snapshots yet.';
+            } else {
+              const table = document.createElement('table');
+              const thead = document.createElement('thead');
+              thead.innerHTML = '<tr><th>Date</th><th>MOR</th><th>Purchased</th><th>Sessions</th></tr>';
+              table.appendChild(thead);
+              const tbody = document.createElement('tbody');
+              history.forEach(h => {
+                const tr = document.createElement('tr');
+                const date = document.createElement('td');
+                date.textContent = new Date(h.snapshot_at).toLocaleDateString();
+                const mor = document.createElement('td');
+                mor.textContent = parseFloat(h.mor_balance).toFixed(2);
+                const purchased = document.createElement('td');
+                purchased.textContent = parseFloat(h.mor_purchased).toFixed(2);
+                const sessions = document.createElement('td');
+                sessions.textContent = h.sessions_opened;
+                tr.appendChild(date);
+                tr.appendChild(mor);
+                tr.appendChild(purchased);
+                tr.appendChild(sessions);
+                tbody.appendChild(tr);
+              });
+              table.appendChild(tbody);
+              histDiv.innerHTML = '';
+              histDiv.appendChild(table);
+            }
+          } catch {
+            histDiv.textContent = 'Failed to load history.';
+          }
+        });
+
+        list.appendChild(row);
+      });
+    }
+  } catch (e) {
+    list.innerHTML = '<div class="empty">Failed to load analytics.</div>';
+  }
+
+  btn.disabled = false;
+  btn.textContent = 'Refresh';
 }
 
 // Init

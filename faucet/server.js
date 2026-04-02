@@ -75,6 +75,106 @@ async function initDb() {
   // Migrations for existing tables
   await db.query(`ALTER TABLE codes ADD COLUMN IF NOT EXISTS assigned_to TEXT`);
   await db.query(`ALTER TABLE codes ADD COLUMN IF NOT EXISTS redeemed_ip_hash TEXT`);
+
+  await db.query(`
+    CREATE TABLE IF NOT EXISTS analytics_snapshots (
+      id SERIAL PRIMARY KEY,
+      wallet TEXT NOT NULL,
+      code TEXT,
+      mor_balance TEXT NOT NULL,
+      eth_balance TEXT NOT NULL,
+      mor_purchased TEXT NOT NULL DEFAULT '0',
+      sessions_opened INTEGER NOT NULL DEFAULT 0,
+      last_active TIMESTAMPTZ,
+      snapshot_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+    )
+  `);
+  await db.query(`CREATE INDEX IF NOT EXISTS idx_snapshots_wallet ON analytics_snapshots(wallet, snapshot_at)`);
+}
+
+// --- Blockscout + RPC helpers ---
+
+const BLOCKSCOUT_BASE = 'https://base.blockscout.com/api/v2';
+const DIAMOND_CONTRACT = '0x6aBE1d282f72B474E54527D93b979A4f64d3030a'.toLowerCase();
+const FAUCET_MOR = parseFloat(MOR_AMOUNT);
+
+async function fetchJSON(url) {
+  const resp = await fetch(url);
+  if (!resp.ok) return null;
+  return resp.json();
+}
+
+async function getWalletAnalytics(walletAddr) {
+  // Validate address
+  const wallet = ethers.getAddress(walletAddr);
+  const walletLower = wallet.toLowerCase();
+
+  // Current balances via RPC
+  const [ethBal, morBal] = await Promise.all([
+    provider.getBalance(wallet),
+    morContract.balanceOf(wallet)
+  ]);
+
+  // MOR transfers from Blockscout
+  const transfers = await fetchJSON(
+    `${BLOCKSCOUT_BASE}/addresses/${wallet}/token-transfers?type=ERC-20&token=${MOR_TOKEN}&limit=100`
+  );
+
+  let morIn = 0;
+  let morOut = 0;
+  if (transfers && transfers.items) {
+    for (const t of transfers.items) {
+      const value = parseFloat(t.total?.value || '0') / 1e18;
+      const to = (t.to?.hash || '').toLowerCase();
+      const from = (t.from?.hash || '').toLowerCase();
+      if (to === walletLower) morIn += value;
+      if (from === walletLower) morOut += value;
+    }
+  }
+
+  // Transactions to Diamond contract (sessions)
+  const txs = await fetchJSON(
+    `${BLOCKSCOUT_BASE}/addresses/${wallet}/transactions?limit=100`
+  );
+
+  let sessionsOpened = 0;
+  let lastActive = null;
+  if (txs && txs.items) {
+    for (const tx of txs.items) {
+      const to = (tx.to?.hash || '').toLowerCase();
+      if (to === DIAMOND_CONTRACT) {
+        sessionsOpened++;
+      }
+      if (!lastActive && tx.timestamp) {
+        lastActive = tx.timestamp;
+      }
+    }
+  }
+
+  const morPurchased = Math.max(0, morIn - FAUCET_MOR);
+  const currentMor = parseFloat(ethers.formatUnits(morBal, 18));
+  const currentEth = parseFloat(ethers.formatEther(ethBal));
+
+  // Determine status
+  const now = Date.now();
+  const lastActiveMs = lastActive ? new Date(lastActive).getTime() : 0;
+  const daysSinceActive = lastActiveMs ? (now - lastActiveMs) / (1000 * 60 * 60 * 24) : Infinity;
+
+  let status;
+  if (daysSinceActive <= 7) status = 'active';
+  else if (morPurchased > 0) status = 'purchased';
+  else if (daysSinceActive > 14) status = 'inactive';
+  else status = 'faucet only';
+
+  return {
+    currentMor: currentMor.toFixed(4),
+    currentEth: currentEth.toFixed(6),
+    morPurchased: morPurchased.toFixed(4),
+    morSpent: morOut.toFixed(4),
+    sessionsOpened,
+    lastActive,
+    status
+  };
 }
 
 // --- Routes ---
@@ -175,6 +275,100 @@ app.post('/admin/assign', requireAdmin, async (req, res) => {
     res.json({ success: true });
   } catch (err) {
     res.status(500).json({ error: 'Database error' });
+  }
+});
+
+app.get('/admin/analytics', requireAdmin, async (req, res) => {
+  try {
+    const { rows: codes } = await db.query(
+      `SELECT code, assigned_to, used_by, used_at, redeemed_ip_hash
+       FROM codes WHERE used = true AND status = 'completed' ORDER BY used_at DESC`
+    );
+
+    if (codes.length === 0) {
+      return res.json({ users: [], summary: { totalInvited: 0, totalConverted: 0, conversionRate: '0%', totalMorPurchased: '0', totalMorSpent: '0' } });
+    }
+
+    // Process wallets in batches of 5
+    const users = [];
+    for (let i = 0; i < codes.length; i += 5) {
+      const batch = codes.slice(i, i + 5);
+      const results = await Promise.all(batch.map(async c => {
+        try {
+          const analytics = await getWalletAnalytics(c.used_by);
+          const daysSinceInvite = c.used_at ? Math.floor((Date.now() - new Date(c.used_at).getTime()) / (1000 * 60 * 60 * 24)) : 0;
+
+          // Store snapshot if last one is >1 hour old
+          const { rows: lastSnap } = await db.query(
+            `SELECT snapshot_at FROM analytics_snapshots WHERE wallet = $1 ORDER BY snapshot_at DESC LIMIT 1`,
+            [c.used_by]
+          );
+          const needsSnapshot = !lastSnap.length || (Date.now() - new Date(lastSnap[0].snapshot_at).getTime() > 3600000);
+          if (needsSnapshot) {
+            await db.query(
+              `INSERT INTO analytics_snapshots (wallet, code, mor_balance, eth_balance, mor_purchased, sessions_opened, last_active)
+               VALUES ($1, $2, $3, $4, $5, $6, $7)`,
+              [c.used_by, c.code, analytics.currentMor, analytics.currentEth, analytics.morPurchased, analytics.sessionsOpened, analytics.lastActive]
+            );
+          }
+
+          return {
+            code: c.code,
+            name: c.assigned_to,
+            wallet: c.used_by,
+            invitedAt: c.used_at,
+            daysSinceInvite,
+            ipHash: c.redeemed_ip_hash,
+            ...analytics
+          };
+        } catch (err) {
+          return {
+            code: c.code,
+            name: c.assigned_to,
+            wallet: c.used_by,
+            invitedAt: c.used_at,
+            daysSinceInvite: 0,
+            currentMor: '0', currentEth: '0', morPurchased: '0', morSpent: '0',
+            sessionsOpened: 0, lastActive: null, status: 'error'
+          };
+        }
+      }));
+      users.push(...results);
+    }
+
+    // Summary
+    const totalInvited = users.length;
+    const totalConverted = users.filter(u => parseFloat(u.morPurchased) > 0).length;
+    const totalMorPurchased = users.reduce((sum, u) => sum + parseFloat(u.morPurchased), 0).toFixed(4);
+    const totalMorSpent = users.reduce((sum, u) => sum + parseFloat(u.morSpent), 0).toFixed(4);
+
+    res.json({
+      users,
+      summary: {
+        totalInvited,
+        totalConverted,
+        conversionRate: totalInvited > 0 ? Math.round(totalConverted / totalInvited * 100) + '%' : '0%',
+        totalMorPurchased,
+        totalMorSpent
+      }
+    });
+  } catch (err) {
+    console.error('Analytics error:', err.message);
+    res.status(500).json({ error: 'Analytics query failed' });
+  }
+});
+
+app.get('/admin/analytics/:wallet/history', requireAdmin, async (req, res) => {
+  try {
+    const wallet = ethers.getAddress(req.params.wallet);
+    const { rows } = await db.query(
+      `SELECT mor_balance, eth_balance, mor_purchased, sessions_opened, last_active, snapshot_at
+       FROM analytics_snapshots WHERE wallet = $1 ORDER BY snapshot_at ASC`,
+      [wallet]
+    );
+    res.json({ wallet, history: rows });
+  } catch (err) {
+    res.status(500).json({ error: 'History query failed' });
   }
 });
 
