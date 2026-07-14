@@ -25,6 +25,15 @@ if ! command -v docker &>/dev/null; then
     exit 1
 fi
 
+if ! docker info &>/dev/null; then
+    echo "[FAIL] Docker is installed but not running."
+    echo ""
+    echo "  Open Docker Desktop and wait until it says \"running,\""
+    echo "  then re-run this command."
+    echo ""
+    exit 1
+fi
+
 if ! command -v python3 &>/dev/null; then
     echo "[FAIL] python3 not found. It ships with macOS -- something is wrong."
     exit 1
